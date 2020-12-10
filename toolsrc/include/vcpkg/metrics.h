@@ -1,7 +1,8 @@
 #pragma once
 
-#include <vcpkg/base/util.h>
 #include <vcpkg/base/files.h>
+#include <vcpkg/base/lockguarded.h>
+#include <vcpkg/base/util.h>
 
 #include <string>
 

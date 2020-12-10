@@ -1,4 +1,5 @@
 #include <catch2/catch.hpp>
+
 #include <vcpkg/binarycaching.h>
 
 using namespace vcpkg;
@@ -88,15 +89,15 @@ TEST_CASE ("BinaryConfigParser nuget source provider", "[binaryconfigparser]")
         REQUIRE(!parsed.has_value());
     }
     {
-        auto parsed = create_binary_provider_from_configs_pure("nuget," ABSOLUTE_PATH ",upload", {});
+        auto parsed = create_binary_provider_from_configs_pure("nuget," ABSOLUTE_PATH ",readwrite", {});
         REQUIRE(parsed.has_value());
     }
     {
-        auto parsed = create_binary_provider_from_configs_pure("nuget," ABSOLUTE_PATH ",upload,extra", {});
+        auto parsed = create_binary_provider_from_configs_pure("nuget," ABSOLUTE_PATH ",readwrite,extra", {});
         REQUIRE(!parsed.has_value());
     }
     {
-        auto parsed = create_binary_provider_from_configs_pure("nuget,,upload", {});
+        auto parsed = create_binary_provider_from_configs_pure("nuget,,readwrite", {});
         REQUIRE(!parsed.has_value());
     }
 }
@@ -124,15 +125,23 @@ TEST_CASE ("BinaryConfigParser nuget config provider", "[binaryconfigparser]")
         REQUIRE(!parsed.has_value());
     }
     {
-        auto parsed = create_binary_provider_from_configs_pure("nugetconfig," ABSOLUTE_PATH ",upload", {});
+        auto parsed = create_binary_provider_from_configs_pure("nugetconfig," ABSOLUTE_PATH ",read", {});
         REQUIRE(parsed.has_value());
     }
     {
-        auto parsed = create_binary_provider_from_configs_pure("nugetconfig," ABSOLUTE_PATH ",upload,extra", {});
+        auto parsed = create_binary_provider_from_configs_pure("nugetconfig," ABSOLUTE_PATH ",write", {});
+        REQUIRE(parsed.has_value());
+    }
+    {
+        auto parsed = create_binary_provider_from_configs_pure("nugetconfig," ABSOLUTE_PATH ",readwrite", {});
+        REQUIRE(parsed.has_value());
+    }
+    {
+        auto parsed = create_binary_provider_from_configs_pure("nugetconfig," ABSOLUTE_PATH ",readwrite,extra", {});
         REQUIRE(!parsed.has_value());
     }
     {
-        auto parsed = create_binary_provider_from_configs_pure("nugetconfig,,upload", {});
+        auto parsed = create_binary_provider_from_configs_pure("nugetconfig,,readwrite", {});
         REQUIRE(!parsed.has_value());
     }
 }
@@ -184,7 +193,7 @@ TEST_CASE ("BinaryConfigParser interactive provider", "[binaryconfigparser]")
         REQUIRE(parsed.has_value());
     }
     {
-        auto parsed = create_binary_provider_from_configs_pure("interactive,upload", {});
+        auto parsed = create_binary_provider_from_configs_pure("interactive,read", {});
         REQUIRE(!parsed.has_value());
     }
 }
@@ -193,6 +202,14 @@ TEST_CASE ("BinaryConfigParser multiple providers", "[binaryconfigparser]")
 {
     {
         auto parsed = create_binary_provider_from_configs_pure("clear;default", {});
+        REQUIRE(parsed.has_value());
+    }
+    {
+        auto parsed = create_binary_provider_from_configs_pure("clear;default,read", {});
+        REQUIRE(parsed.has_value());
+    }
+    {
+        auto parsed = create_binary_provider_from_configs_pure("clear;default,write", {});
         REQUIRE(parsed.has_value());
     }
     {
@@ -278,6 +295,42 @@ TEST_CASE ("BinaryConfigParser args", "[binaryconfigparser]")
     {
         auto parsed = create_binary_provider_from_configs_pure("files," ABSOLUTE_PATH,
                                                                std::vector<std::string>{"clear", "clear"});
+        REQUIRE(parsed.has_value());
+    }
+}
+
+TEST_CASE ("BinaryConfigParser azblob provider", "[binaryconfigparser]")
+{
+    {
+        auto parsed = create_binary_provider_from_configs_pure("x-azblob,https://azure/container,sas", {});
+        REQUIRE(parsed.has_value());
+    }
+    {
+        auto parsed = create_binary_provider_from_configs_pure("x-azblob,https://azure/container,?sas", {});
+        REQUIRE(!parsed.has_value());
+    }
+    {
+        auto parsed = create_binary_provider_from_configs_pure("x-azblob,,sas", {});
+        REQUIRE(!parsed.has_value());
+    }
+    {
+        auto parsed = create_binary_provider_from_configs_pure("x-azblob,https://azure/container", {});
+        REQUIRE(!parsed.has_value());
+    }
+    {
+        auto parsed = create_binary_provider_from_configs_pure("x-azblob,https://azure/container,sas,invalid", {});
+        REQUIRE(!parsed.has_value());
+    }
+    {
+        auto parsed = create_binary_provider_from_configs_pure("x-azblob,https://azure/container,sas,read", {});
+        REQUIRE(parsed.has_value());
+    }
+    {
+        auto parsed = create_binary_provider_from_configs_pure("x-azblob,https://azure/container,sas,write", {});
+        REQUIRE(parsed.has_value());
+    }
+    {
+        auto parsed = create_binary_provider_from_configs_pure("x-azblob,https://azure/container,sas,readwrite", {});
         REQUIRE(parsed.has_value());
     }
 }
